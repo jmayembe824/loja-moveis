@@ -1,0 +1,541 @@
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MobiliCasa - Móveis para casa, escritório e ambientes modernos.">
+  <title>MobiliCasa | Móveis para Casa e Escritório</title>
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      color:#252525;
+      background:#f7f5f1;
+      line-height:1.5;
+    }
+    a{text-decoration:none;color:inherit}
+    button,input{font:inherit}
+    .container{width:min(1180px,92%);margin:auto}
+
+    /* HEADER */
+    header{
+      position:sticky;top:0;z-index:1000;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 2px 15px rgba(0,0,0,.08);
+      backdrop-filter:blur(10px);
+    }
+    .nav{
+      min-height:72px;display:flex;align-items:center;
+      justify-content:space-between;gap:25px;
+    }
+    .logo{font-size:1.65rem;font-weight:800;color:#7a4b27}
+    .logo span{color:#c38a52}
+    nav{display:flex;gap:25px}
+    nav a{font-weight:600;color:#444;transition:.2s}
+    nav a:hover{color:#a66b38}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .cart-btn,.menu-btn{
+      border:0;cursor:pointer;border-radius:10px;
+      padding:10px 13px;background:#f1e8df;color:#68401f;
+      font-weight:700;
+    }
+    .cart-btn span{
+      display:inline-flex;min-width:22px;height:22px;
+      align-items:center;justify-content:center;
+      background:#a66b38;color:#fff;border-radius:50%;font-size:.8rem;
+      margin-left:4px;
+    }
+    .menu-btn{display:none;font-size:1.2rem}
+
+    /* HERO */
+    .hero{
+      min-height:570px;
+      display:flex;align-items:center;
+      background:
+        linear-gradient(90deg,rgba(24,18,13,.82),rgba(24,18,13,.38),rgba(24,18,13,.08)),
+        url("https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1800&q=85")
+        center/cover;
+      color:#fff;
+    }
+    .hero-content{max-width:650px;padding:70px 0}
+    .tag{
+      display:inline-block;background:#c38a52;color:#fff;
+      padding:7px 13px;border-radius:30px;font-weight:700;margin-bottom:18px;
+    }
+    .hero h1{font-size:clamp(2.2rem,5vw,4.4rem);line-height:1.05;margin-bottom:20px}
+    .hero p{font-size:1.1rem;max-width:570px;color:#eee;margin-bottom:30px}
+    .btn{
+      display:inline-block;border:0;cursor:pointer;
+      padding:13px 22px;border-radius:9px;font-weight:700;
+      transition:.25s;
+    }
+    .btn-primary{background:#c38a52;color:#fff}
+    .btn-primary:hover{background:#a66b38;transform:translateY(-2px)}
+    .btn-light{background:#fff;color:#59371d;margin-left:8px}
+    .btn-light:hover{transform:translateY(-2px)}
+
+    /* SECTIONS */
+    section{padding:75px 0}
+    .section-title{text-align:center;margin-bottom:40px}
+    .section-title h2{font-size:2.2rem;color:#3b2a1e}
+    .section-title p{color:#777;margin-top:8px}
+
+    .categories{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+    }
+    .category{
+      position:relative;height:190px;border-radius:16px;overflow:hidden;
+      display:flex;align-items:flex-end;padding:20px;color:#fff;
+      background-size:cover;background-position:center;
+      box-shadow:0 8px 20px rgba(0,0,0,.1);
+    }
+    .category:after{
+      content:"";position:absolute;inset:0;
+      background:linear-gradient(transparent,rgba(0,0,0,.72));
+    }
+    .category h3{position:relative;z-index:1;font-size:1.25rem}
+
+    /* PRODUCTS */
+    .shop-bar{
+      display:flex;gap:12px;justify-content:space-between;
+      align-items:center;margin-bottom:28px;flex-wrap:wrap;
+    }
+    .filters{display:flex;gap:8px;flex-wrap:wrap}
+    .filter{
+      border:1px solid #ddd;background:#fff;color:#555;
+      padding:9px 15px;border-radius:30px;cursor:pointer;
+    }
+    .filter.active,.filter:hover{background:#a66b38;color:#fff;border-color:#a66b38}
+    .search{
+      width:250px;padding:11px 14px;border:1px solid #ddd;
+      border-radius:10px;outline:none;background:#fff;
+    }
+    .products{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
+    }
+    .product{
+      background:#fff;border-radius:15px;overflow:hidden;
+      box-shadow:0 5px 20px rgba(0,0,0,.07);
+      transition:.25s;position:relative;
+    }
+    .product:hover{transform:translateY(-5px);box-shadow:0 12px 28px rgba(0,0,0,.12)}
+    .product-img{height:230px;width:100%;object-fit:cover;display:block}
+    .badge{
+      position:absolute;top:12px;left:12px;background:#a66b38;
+      color:#fff;padding:5px 9px;border-radius:6px;font-size:.75rem;font-weight:bold;
+    }
+    .product-info{padding:18px}
+    .product-info small{color:#9a7656;text-transform:uppercase;font-weight:700}
+    .product-info h3{margin:5px 0 8px;font-size:1.08rem}
+    .product-info p{font-size:.9rem;color:#777;min-height:42px}
+    .product-bottom{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-top:15px;gap:8px;
+    }
+    .price{font-size:1.15rem;font-weight:800;color:#7a4b27}
+    .add{
+      border:0;background:#3b2a1e;color:#fff;border-radius:8px;
+      padding:9px 12px;cursor:pointer;font-weight:700;
+    }
+    .add:hover{background:#a66b38}
+
+    /* BANNER */
+    .banner{
+      background:#3b2a1e;color:#fff;border-radius:20px;
+      padding:50px;display:flex;justify-content:space-between;
+      align-items:center;gap:30px;
+    }
+    .banner h2{font-size:2rem;margin-bottom:8px}
+    .banner p{color:#ddd}
+
+    /* ABOUT */
+    .about{
+      display:grid;grid-template-columns:1fr 1fr;gap:45px;align-items:center;
+    }
+    .about img{width:100%;height:420px;object-fit:cover;border-radius:18px}
+    .about h2{font-size:2.2rem;color:#3b2a1e;margin-bottom:15px}
+    .features{margin-top:22px;display:grid;gap:12px}
+    .features div{background:#fff;padding:13px 15px;border-radius:10px}
+
+    /* CONTACT */
+    .contact-box{
+      display:grid;grid-template-columns:1fr 1fr;gap:25px;
+      background:#fff;padding:35px;border-radius:18px;
+      box-shadow:0 5px 25px rgba(0,0,0,.06);
+    }
+    .contact-info h3{font-size:1.5rem;margin-bottom:12px;color:#3b2a1e}
+    .contact-info p{margin:10px 0;color:#666}
+    form{display:grid;gap:12px}
+    form input,form textarea{
+      border:1px solid #ddd;border-radius:9px;padding:12px;
+      outline:none;background:#fafafa;
+    }
+    form textarea{min-height:120px;resize:vertical}
+
+    footer{background:#211811;color:#ddd;padding:35px 0;margin-top:0}
+    .footer-content{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    footer strong{color:#fff}
+    footer a{color:#d6ad85}
+
+    /* CART */
+    .overlay{
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1500;
+    }
+    .overlay.show{display:block}
+    .cart{
+      position:fixed;right:0;top:0;height:100vh;width:min(420px,92vw);
+      background:#fff;z-index:1600;transform:translateX(100%);
+      transition:.3s;padding:25px;display:flex;flex-direction:column;
+    }
+    .cart.open{transform:translateX(0)}
+    .cart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .close{border:0;background:#eee;border-radius:8px;padding:8px 12px;cursor:pointer}
+    .cart-items{flex:1;overflow:auto}
+    .cart-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #eee}
+    .cart-item img{width:70px;height:60px;object-fit:cover;border-radius:8px}
+    .cart-item h4{font-size:.95rem}
+    .cart-item small{color:#777}
+    .remove{border:0;background:none;color:#b33;cursor:pointer;font-size:.8rem}
+    .cart-total{border-top:1px solid #ddd;padding-top:18px}
+    .cart-total strong{display:flex;justify-content:space-between;font-size:1.2rem;margin-bottom:15px}
+
+    .empty{text-align:center;color:#888;padding:40px 0}
+
+    @media(max-width:950px){
+      .products{grid-template-columns:repeat(3,1fr)}
+      .categories{grid-template-columns:repeat(2,1fr)}
+      .about{grid-template-columns:1fr}
+    }
+    @media(max-width:700px){
+      nav{
+        display:none;position:absolute;left:0;right:0;top:72px;
+        background:#fff;padding:18px 4%;flex-direction:column;
+        box-shadow:0 10px 20px rgba(0,0,0,.08);
+      }
+      nav.open{display:flex}
+      .menu-btn{display:block}
+      .products{grid-template-columns:repeat(2,1fr)}
+      .banner{padding:32px;flex-direction:column;align-items:flex-start}
+      .contact-box{grid-template-columns:1fr}
+      .hero{min-height:520px}
+      .btn-light{margin-left:0;margin-top:10px}
+    }
+    @media(max-width:480px){
+      .products,.categories{grid-template-columns:1fr}
+      .product-img{height:250px}
+      .search{width:100%}
+      .shop-bar{align-items:stretch}
+      .filters{width:100%}
+      section{padding:55px 0}
+      .hero-content{padding:50px 0}
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#inicio" class="logo">NEW<span>HOUSE</span></a>
+
+    <nav id="nav">
+      <a href="#inicio">Início</a>
+      <a href="#categorias">Categorias</a>
+      <a href="#produtos">Produtos</a>
+      <a href="#sobre">Sobre nós</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()">🛒 Carrinho <span id="cartCount">0</span></button>
+      <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="inicio">
+    <div class="container hero-content">
+      <span class="tag">Móveis modernos & elegantes</span>
+      <h1>Transforme o seu espaço com móveis de qualidade.</h1>
+      <p>
+        Encontre mobiliário para casa, escritório, quarto, sala, cozinha e muito mais.
+        Design, conforto e qualidade num só lugar.
+      </p>
+      <a href="#produtos" class="btn btn-primary">Ver produtos</a>
+      <a href="#contacto" class="btn btn-light">Falar connosco</a>
+    </div>
+  </section>
+
+  <section id="categorias">
+    <div class="container">
+      <div class="section-title">
+        <h2>Compre por categoria</h2>
+        <p>Escolha o ambiente que deseja mobilar.</p>
+      </div>
+
+      <div class="categories">
+        <a class="category" href="#produtos" onclick="setFilter('sala')" style="background-image:url('https://images.unsplash.com/photo-1550226891-ef816aed4a98?auto=format&fit=crop&w=900&q=80')">
+          <h3>🛋️ Sala de estar</h3>
+        </a>
+        <a class="category" href="#produtos" onclick="setFilter('escritorio')" style="background-image:url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80')">
+          <h3>💼 Escritório</h3>
+        </a>
+        <a class="category" href="#produtos" onclick="setFilter('quarto')" style="background-image:url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80')">
+          <h3>🛏️ Quarto</h3>
+        </a>
+        <a class="category" href="#produtos" onclick="setFilter('cozinha')" style="background-image:url('https://images.unsplash.com/photo-1556912167-f556f1f39fdf?auto=format&fit=crop&w=900&q=80')">
+          <h3>🍽️ Cozinha</h3>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="produtos">
+    <div class="container">
+      <div class="section-title">
+        <h2>Os nossos produtos</h2>
+        <p>Mobiliário pensado para deixar o seu ambiente mais bonito e confortável.</p>
+      </div>
+
+      <div class="shop-bar">
+        <div class="filters">
+          <button class="filter active" onclick="setFilter('todos')">Todos</button>
+          <button class="filter" onclick="setFilter('sala')">Sala</button>
+          <button class="filter" onclick="setFilter('escritorio')">Escritório</button>
+          <button class="filter" onclick="setFilter('quarto')">Quarto</button>
+          <button class="filter" onclick="setFilter('cozinha')">Cozinha</button>
+        </div>
+        <input class="search" id="search" type="search" placeholder="Pesquisar móvel..." oninput="renderProducts()">
+      </div>
+
+      <div class="products" id="products"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="banner">
+        <div>
+          <h2>Quer mobilar a sua empresa?</h2>
+          <p>Solicite um orçamento para escritórios, lojas, escolas e outros espaços.</p>
+        </div>
+        <a class="btn btn-primary" href="#contacto">Solicitar orçamento</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre">
+    <div class="container about">
+      <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1100&q=85" alt="Sala moderna">
+      <div>
+        <h2>Móveis para todos os momentos</h2>
+        <p>
+          Na MobiliCasa trabalhamos para oferecer soluções de mobiliário bonitas,
+          funcionais e acessíveis. Temos opções para residências, escritórios e
+          espaços comerciais.
+        </p>
+        <div class="features">
+          <div>✓ Design moderno e elegante</div>
+          <div>✓ Móveis para casa e empresas</div>
+          <div>✓ Atendimento personalizado</div>
+          <div>✓ Entrega e montagem mediante disponibilidade</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="container">
+      <div class="section-title">
+        <h2>Entre em contacto</h2>
+        <p>Precisa de ajuda para escolher? Fale connosco.</p>
+      </div>
+
+      <div class="contact-box">
+        <div class="contact-info">
+          <h3>Vamos conversar</h3>
+          <p>📍 Luanda, Angola</p>
+          <p>📞 +244 900 000 000</p>
+          <p>✉️ vendas@mobiliacasa.ao</p>
+          <p>🕐 Segunda a sábado: 08h00 – 18h00</p>
+        </div>
+
+        <form onsubmit="sendMessage(event)">
+          <input id="nome" type="text" placeholder="Seu nome" required>
+          <input id="email" type="email" placeholder="Seu e-mail" required>
+          <input id="telefone" type="tel" placeholder="Seu telefone" required>
+          <textarea id="mensagem" placeholder="Escreva a sua mensagem..." required></textarea>
+          <button class="btn btn-primary" type="submit">Enviar mensagem</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-content">
+    <div><strong>MobiliCasa</strong><br>O seu espaço começa com bons móveis.</div>
+    <div>© 2026 MobiliCasa — Todos os direitos reservados.</div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+
+<aside class="cart" id="cart">
+  <div class="cart-head">
+    <h2>Meu carrinho</h2>
+    <button class="close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-total">
+    <strong><span>Total</span><span id="cartTotal">0 Kz</span></strong>
+    <button class="btn btn-primary" style="width:100%" onclick="checkout()">Finalizar pelo WhatsApp</button>
+  </div>
+</aside>
+
+<script>
+  const products = [
+    {id:1,name:"Sofá Premium 3 Lugares",category:"sala",price:285000,img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",desc:"Confortável e elegante para a sua sala.",badge:"Destaque"},
+    {id:2,name:"Mesa de Escritório Moderna",category:"escritorio",price:145000,img:"https://images.unsplash.com/photo-1518455027359-f3f8164ba6b7?auto=format&fit=crop&w=800&q=80",desc:"Ideal para escritórios modernos.",badge:"Novo"},
+    {id:3,name:"Cadeira Executiva",category:"escritorio",price:95000,img:"https://images.unsplash.com/photo-1505843490701-5be5d0f6b7b5?auto=format&fit=crop&w=800&q=80",desc:"Ergonómica e confortável.",badge:"Popular"},
+    {id:4,name:"Cama King Size",category:"quarto",price:320000,img:"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80",desc:"Design elegante para o seu quarto.",badge:""},
+    {id:5,name:"Mesa de Cabeceira",category:"quarto",price:75000,img:"https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80",desc:"Compacta e funcional.",badge:""},
+    {id:6,name:"Mesa de Jantar 6 Lugares",category:"cozinha",price:210000,img:"https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80",desc:"Perfeita para refeições em família.",badge:""},
+    {id:7,name:"Cadeira de Jantar",category:"cozinha",price:48000,img:"https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80",desc:"Conforto e estilo para a sala de jantar.",badge:""},
+    {id:8,name:"Poltrona Decorativa",category:"sala",price:135000,img:"https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=800&q=80",desc:"Um toque especial para o ambiente.",badge:"Novo"}
+  ];
+
+  let currentFilter = "todos";
+  let cart = JSON.parse(localStorage.getItem("mobiliCasaCart") || "[]");
+
+  const money = value => new Intl.NumberFormat("pt-AO").format(value) + " Kz";
+
+  function renderProducts(){
+    const search = document.getElementById("search").value.toLowerCase().trim();
+    const box = document.getElementById("products");
+
+    const filtered = products.filter(p =>
+      (currentFilter === "todos" || p.category === currentFilter) &&
+      (p.name.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search))
+    );
+
+    box.innerHTML = filtered.length ? filtered.map(p => `
+      <article class="product">
+        ${p.badge ? `<span class="badge">${p.badge}</span>` : ""}
+        <img class="product-img" src="${p.img}" alt="${p.name}" loading="lazy">
+        <div class="product-info">
+          <small>${p.category}</small>
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <div class="product-bottom">
+            <span class="price">${money(p.price)}</span>
+            <button class="add" onclick="addToCart(${p.id})">Adicionar</button>
+          </div>
+        </div>
+      </article>
+    `).join("") : `<div class="empty" style="grid-column:1/-1">Nenhum produto encontrado.</div>`;
+  }
+
+  function setFilter(filter){
+    currentFilter = filter;
+    document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".filter").forEach(b => {
+      if(b.textContent.toLowerCase().includes(filter === "todos" ? "todos" : filter)) b.classList.add("active");
+    });
+    renderProducts();
+  }
+
+  function addToCart(id){
+    const product = products.find(p => p.id === id);
+    const existing = cart.find(item => item.id === id);
+    if(existing) existing.qty++;
+    else cart.push({...product, qty:1});
+    saveCart();
+    openCart();
+  }
+
+  function removeFromCart(id){
+    cart = cart.filter(item => item.id !== id);
+    saveCart();
+  }
+
+  function saveCart(){
+    localStorage.setItem("mobiliCasaCart", JSON.stringify(cart));
+    renderCart();
+  }
+
+  function renderCart(){
+    const items = document.getElementById("cartItems");
+    const count = cart.reduce((sum,i)=>sum+i.qty,0);
+    document.getElementById("cartCount").textContent = count;
+
+    if(!cart.length){
+      items.innerHTML = `<div class="empty">O seu carrinho está vazio.</div>`;
+    } else {
+      items.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.img}" alt="${item.name}">
+          <div style="flex:1">
+            <h4>${item.name}</h4>
+            <small>${item.qty} × ${money(item.price)}</small><br>
+            <button class="remove" onclick="removeFromCart(${item.id})">Remover</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    const total = cart.reduce((sum,i)=>sum+(i.price*i.qty),0);
+    document.getElementById("cartTotal").textContent = money(total);
+  }
+
+  function openCart(){
+    document.getElementById("cart").classList.add("open");
+    document.getElementById("overlay").classList.add("show");
+    renderCart();
+  }
+
+  function closeCart(){
+    document.getElementById("cart").classList.remove("open");
+    document.getElementById("overlay").classList.remove("show");
+  }
+
+  function checkout(){
+    if(!cart.length){alert("Adicione pelo menos um produto ao carrinho.");return;}
+    const lines = cart.map(i => `• ${i.name} — ${i.qty}x — ${money(i.price*i.qty)}`).join("%0A");
+    const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const phone = "244900000000"; // ALTERE PARA O SEU NÚMERO
+    const message = `Olá! Quero fazer um pedido:%0A%0A${lines}%0A%0ATotal: ${money(total)}`;
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  }
+
+  function sendMessage(event){
+    event.preventDefault();
+    const nome = document.getElementById("nome").value;
+    const telefone = document.getElementById("telefone").value;
+    const mensagem = document.getElementById("mensagem").value;
+    const phone = "244900000000"; // ALTERE PARA O SEU NÚMERO
+    const text = `Olá! Sou ${nome}.%0ATelefone: ${telefone}%0A%0A${mensagem}`;
+    window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+  }
+
+  function toggleMenu(){
+    document.getElementById("nav").classList.toggle("open");
+  }
+
+  document.querySelectorAll("nav a").forEach(a => {
+    a.addEventListener("click",()=>document.getElementById("nav").classList.remove("open"));
+  });
+
+  renderProducts();
+  renderCart();
+</script>
+
+</body>
+</html>
+'''
+
